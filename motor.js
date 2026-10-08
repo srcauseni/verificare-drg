@@ -15,20 +15,42 @@
     eliminat:    { eticheta: "De eliminat",            ordine: 0 }
   };
 
-  function norm(c) { return String(c || "").toUpperCase().replace(/[\s.\-+*†‡]/g, ""); }
+  /* Litere chirilice care arată identic cu cele latine (tastatură rusă/română lăsată pe chirilică). */
+  const CHIR = { "А": "A", "В": "B", "С": "C", "Е": "E", "Н": "H", "І": "I", "Ј": "J", "К": "K", "М": "M", "О": "O", "Р": "P", "Ѕ": "S", "Т": "T", "Х": "X", "У": "Y", "Ү": "Y" };
+  function latin(s) { return String(s || "").toUpperCase().replace(/[Ѐ-ӿ]/g, ch => CHIR[ch] || ch); }
+  function norm(c) { return latin(c).replace(/[\s.\-–—+*†‡]/g, ""); }
   function esteICD(n) { return /^[A-Z]\d{2,5}$/.test(n); }
   function esteACHI(n) { return /^\d{7}$/.test(n); }
+  function pareCod(t) { return /^[A-Z]\d{2}/.test(t) || /^\d{5}/.test(t); }
   function afisare(n) {
     if (esteICD(n)) return n.length > 3 ? n.slice(0, 3) + "." + n.slice(3) : n;
     if (esteACHI(n)) return n.slice(0, 5) + "-" + n.slice(5);
     return n;
   }
+  /*
+   * Un rând poate conține: un cod; un cod + denumire; mai multe coduri separate prin spațiu sau virgulă.
+   * Se iau codurile consecutive de la începutul rândului și ne oprim la primul cuvânt care nu e cod,
+   * ca o denumire („deficit B12”) să nu fie citită drept cod. Un rând fără niciun cod e păstrat
+   * ca atare, ca să fie semnalat, nu ignorat.
+   */
   function parseLista(text) {
-    return String(text || "")
-      .split(/[\n,;]+/)
-      .map(s => norm(s.trim().split(/\s+/)[0]))
-      .filter(Boolean);
+    const out = [];
+    for (let linie of latin(text).split(/[\n;]+/)) {
+      linie = linie
+        .replace(/(\d{5})\s*[-–—]\s*(\d{2})(?!\d)/g, "$1-$2")      // 92044 - 00  → 92044-00
+        .replace(/([A-Z]\d{2}),(\d{1,2})(?!\d)/g, "$1.$2");          // E11,9       → E11.9
+      const tokens = linie.split(/[\s,]+/).map(norm).filter(Boolean);
+      const coduri = [];
+      for (const t of tokens) {
+        if (pareCod(t)) coduri.push(t);
+        else if (coduri.length) break;
+      }
+      if (coduri.length) out.push(...coduri);
+      else if (tokens.length) out.push(tokens[0]);
+    }
+    return out;
   }
+  const MOTIV_FORMAT_ICD = "Codul nu are formatul ICD-10 (literă + cifre). Verificați litera O scrisă în loc de cifra 0 sau I în loc de 1.";
   function regulaPotrivita(lista, cod) {
     let best = null;
     for (const r of lista) for (const p of r.potrivire) {
@@ -82,7 +104,8 @@
 
   function evalueaza(caz, rasp) {
     rasp = rasp || {};
-    const dp = norm(caz.dp);
+    const dpLista = parseLista(caz.dp);
+    const dp = dpLista[0] || "";
     const ds = parseLista(caz.ds);
     const pr = parseLista(caz.proc);
     const toateDg = [dp, ...ds].filter(Boolean);
@@ -110,8 +133,12 @@
         else if (rb === "ok" && (!spec || rezSpec === "ok")) Object.assign(rand, { verdict: "ok", motiv: spec ? spec.ceScriem : "Afecțiunea care a motivat internarea." });
         else rand.motiv = R.dpBaza.motiv;
       }
-      if (!esteICD(dp)) Object.assign(rand, { verdict: "atentie", motiv: "Codul nu are formatul ICD-10 (literă + cifre)." });
+      if (!esteICD(dp)) Object.assign(rand, { verdict: "atentie", motiv: MOTIV_FORMAT_ICD });
       randuri.push(rand);
+      if (dpLista.length > 1) {
+        randuri.push({ zona: "Diagnostic principal", cod: dpLista.slice(1).map(afisare).join(", "), denumire: "Coduri în plus în câmpul diagnosticului principal",
+          intrebari: [], verdict: "atentie", motiv: "Diagnosticul principal este unul singur. Aceste coduri nu au fost verificate: mutați-le la diagnostice secundare.", ceScriem: "" });
+      }
     }
 
     /* ---- diagnostice secundare ---- */
@@ -138,7 +165,7 @@
       if (rez === "ok") Object.assign(rand, { verdict: "ok", motiv: "Există urma managementului în fișă." });
       else if (rez === "esec") rand.verdict = reg.laEsec;
       else if (rez === "eliminat") rand.verdict = "eliminat";
-      if (!esteICD(cod)) Object.assign(rand, { verdict: "atentie", motiv: "Codul nu are formatul ICD-10 (literă + cifre)." });
+      if (!esteICD(cod)) Object.assign(rand, { verdict: "atentie", motiv: MOTIV_FORMAT_ICD });
       randuri.push(rand);
     }
 
@@ -170,7 +197,8 @@
     const ventCoduri = V.coduri.map(x => x.cod);
     const areVentCod = pr.some(c => ventCoduri.includes(c));
     const ventilat = caz.ventilat || "necunoscut";
-    const ore = caz.oreVentilatie != null && caz.oreVentilatie !== "" ? Number(caz.oreVentilatie) : oreIntre(caz.ventStart, caz.ventStop);
+    let ore = caz.oreVentilatie != null && caz.oreVentilatie !== "" ? Number(String(caz.oreVentilatie).replace(",", ".")) : oreIntre(caz.ventStart, caz.ventStop);
+    if (ore != null && !(ore > 0)) ore = null;   // 0, negativ sau text: durata lipsește, nu „≤ 24 ore”
     const vazuteP = new Set();
     for (const cod of pr) {
       if (vazuteP.has(cod)) { randuri.push({ zona: "Procedură", cod: afisare(cod), denumire: "", intrebari: [], verdict: "eliminat", motiv: "Cod introdus de două ori.", ceScriem: "" }); continue; }

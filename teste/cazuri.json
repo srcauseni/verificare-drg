@@ -120,6 +120,52 @@
     "asteptat": { "N39.0": "ok" }
   },
   {
+    "nume": "Tastare: mai multe coduri pe un rând, separate prin spațiu",
+    "caz": { "dp": "J18.0", "ds": "I10 E11.9 J96.0", "proc": "", "ati": "nu", "ventilat": "nu" },
+    "raspunsuri": {},
+    "asteptat": { "I10": "nedecis", "E11.9": "nedecis", "J96.0": "nedecis" }
+  },
+  {
+    "nume": "Tastare: denumire după cod, inclusiv cu cifre (deficit B12)",
+    "caz": { "dp": "D51.9 Anemie", "ds": "I10 Hipertensiune arterială gr. II\nE53.8 deficit B12", "proc": "", "ati": "nu", "ventilat": "nu" },
+    "raspunsuri": {},
+    "asteptat": { "D51.9": "nedecis", "I10": "nedecis", "E53.8": "nedecis" },
+    "lipseste": ["B12"],
+    "numar": { "atentie": 0 }
+  },
+  {
+    "nume": "Tastare: virgulă zecimală (E11,9)",
+    "caz": { "dp": "J18,0", "ds": "E11,9", "proc": "", "ati": "nu", "ventilat": "nu" },
+    "raspunsuri": {},
+    "asteptat": { "J18.0": "nedecis", "E11.9": "nedecis" },
+    "numar": { "atentie": 0 }
+  },
+  {
+    "nume": "Tastare: litere chirilice identice cu cele latine",
+    "caz": { "dp": "К35.0", "ds": "Е11.9", "proc": "", "ati": "nu", "ventilat": "nu" },
+    "raspunsuri": {},
+    "asteptat": { "K35.0": "nedecis", "E11.9": "nedecis" },
+    "numar": { "atentie": 0 }
+  },
+  {
+    "nume": "Tastare: două coduri în câmpul diagnosticului principal",
+    "caz": { "dp": "J18.0 J96.0", "ds": "", "proc": "", "ati": "nu", "ventilat": "nu" },
+    "raspunsuri": {},
+    "asteptat": { "J18.0": "nedecis", "J96.0": "atentie" }
+  },
+  {
+    "nume": "Tastare: procedură cu spații în jurul cratimei",
+    "caz": { "dp": "J18.0", "ds": "", "proc": "92044 - 00", "ati": "nu", "ventilat": "nu" },
+    "raspunsuri": {},
+    "asteptat": { "92044-00": "ok" }
+  },
+  {
+    "nume": "Ventilație cu 0 ore introduse → durata lipsește",
+    "caz": { "dp": "J18.0", "ds": "", "proc": "", "ati": "da", "ventilat": "da", "oreVentilatie": 0 },
+    "raspunsuri": {},
+    "asteptat": { "13882-0x": "completat" }
+  },
+  {
     "nume": "Întrebări fără răspuns",
     "caz": { "dp": "J18.0", "ds": "I10", "proc": "", "ati": "nu", "ventilat": "nu" },
     "raspunsuri": {},
