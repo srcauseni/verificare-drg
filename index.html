@@ -1,0 +1,192 @@
+<!doctype html>
+<html lang="ro">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self' 'unsafe-inline' file:; connect-src 'none'; form-action 'none'; img-src 'self' data:">
+<title>Verificarea fișei DRG</title>
+<style>
+:root{
+  --navy:#0B3C49; --teal:#028090; --teal-d:#016a77; --ink:#1A2E35; --slate:#51636B; --line:#D5E1E0;
+  --bg:#EEF3F3; --paper:#FFFFFF; --soft:#F6F9F9;
+  --red:#B5391F; --orange:#C0611F; --gold:#9A6A0C; --green:#2E7D5B; --grey:#6B7C82;
+  --red-bg:#FBEDE9; --orange-bg:#FCEFE4; --gold-bg:#FCF4E0; --green-bg:#E6F3EC; --grey-bg:#EEF2F3;
+  --serif: Cambria, "Cambria Math", Georgia, "Times New Roman", serif;
+  --sans: "Segoe UI", system-ui, -apple-system, Roboto, Arial, sans-serif;
+  --mono: Consolas, "Cascadia Mono", "Liberation Mono", Menlo, monospace;
+}
+*{box-sizing:border-box}
+html,body{margin:0}
+body{background:var(--bg);color:var(--ink);font:15px/1.5 var(--sans)}
+button,input,select,textarea{font:inherit;color:inherit}
+:focus-visible{outline:3px solid #7FC8C9;outline-offset:2px}
+
+header.top{background:var(--navy);color:#fff}
+.top .wrap{display:flex;gap:24px;align-items:flex-end;justify-content:space-between;flex-wrap:wrap;padding:22px 24px 18px}
+.top h1{font:700 26px/1.15 var(--serif);margin:0}
+.top p{margin:4px 0 0;color:#BFDDDC;font-size:14px}
+.privat{display:flex;gap:10px;align-items:center;max-width:430px;font-size:13px;color:#DDEFEE}
+.privat svg{flex:none}
+.wrap{max-width:1280px;margin:0 auto}
+
+main.wrap{display:grid;grid-template-columns:minmax(300px,380px) 1fr;gap:24px;padding:24px;align-items:start}
+@media (max-width:900px){ main.wrap{grid-template-columns:1fr;padding:16px} .top .wrap{padding:18px 16px} }
+
+/* ---- formularul cazului ---- */
+.caz{background:var(--paper);border:1px solid var(--line);border-radius:10px;padding:20px;position:sticky;top:16px}
+@media (max-width:900px){ .caz{position:static} }
+.caz h2,.rez h2{font:700 19px/1.2 var(--serif);color:var(--navy);margin:0 0 14px}
+.camp{margin-bottom:14px}
+.camp label,.camp .et{display:block;font-weight:600;font-size:13.5px;margin-bottom:5px;color:var(--navy)}
+.camp small{display:block;color:var(--slate);font-size:12.5px;margin-top:4px}
+.rand2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+input[type=text],input[type=number],input[type=datetime-local],select,textarea{
+  width:100%;padding:8px 10px;border:1px solid #BCCCCB;border-radius:7px;background:#fff}
+textarea{resize:vertical;min-height:72px;font-family:var(--mono);font-size:14px}
+#dp{font-family:var(--mono)}
+.seg{display:inline-flex;border:1px solid #BCCCCB;border-radius:7px;overflow:hidden}
+.seg button{border:0;background:#fff;padding:7px 12px;cursor:pointer;border-right:1px solid #BCCCCB}
+.seg button:last-child{border-right:0}
+.seg button[aria-pressed=true]{background:var(--navy);color:#fff}
+.vent{background:var(--soft);border:1px dashed #BCCCCB;border-radius:8px;padding:12px;margin-top:8px}
+.vent[hidden]{display:none}
+.actiuni{display:flex;gap:8px;flex-wrap:wrap;margin-top:6px}
+.btn{border:1px solid var(--teal);background:#fff;color:var(--teal-d);padding:8px 14px;border-radius:7px;cursor:pointer;font-weight:600}
+.btn:hover{background:#E8F4F4}
+.btn.prim{background:var(--teal);color:#fff}
+.btn.prim:hover{background:var(--teal-d)}
+
+/* ---- rezultatul ---- */
+.rez{background:var(--paper);border:1px solid var(--line);border-radius:10px;overflow:hidden}
+.rez-cap{display:flex;gap:16px;align-items:center;justify-content:space-between;flex-wrap:wrap;padding:18px 22px;border-bottom:1px solid var(--line)}
+.rez-cap h2{margin:0}
+.sumar{display:flex;flex-wrap:wrap;gap:8px;padding:14px 22px;border-bottom:1px solid var(--line);background:var(--soft)}
+.sumar .pastila{font-size:13px;font-weight:600;padding:3px 10px;border-radius:999px;border:1px solid currentColor}
+.risc{margin:0;padding:12px 22px;background:var(--orange-bg);color:#7A3A0E;border-bottom:1px solid #F0D4BD;font-size:14px}
+.risc[hidden]{display:none}
+.gol{padding:48px 22px;text-align:left;color:var(--slate);max-width:60ch}
+.gol strong{color:var(--navy)}
+
+ol.lista{list-style:none;margin:0;padding:0}
+.linie{display:grid;grid-template-columns:1fr auto;gap:6px 20px;padding:18px 22px;border-bottom:1px solid var(--line)}
+.linie:last-child{border-bottom:0}
+.linie .zona{font-size:12.5px;color:var(--slate)}
+.linie .cod{font:700 18px/1.2 var(--mono);color:var(--navy);margin-right:8px}
+.linie .den{font-weight:600}
+.stampila{align-self:start;justify-self:end;font-weight:700;font-size:13.5px;padding:5px 12px;border:2px solid currentColor;border-radius:6px;white-space:nowrap;transform:rotate(-1.5deg);background:#fff}
+.v-eliminat{color:var(--red)} .v-recodificat{color:var(--orange)} .v-completat{color:var(--gold)}
+.v-atentie{color:var(--gold)} .v-ok{color:var(--green)} .v-nedecis,.v-info{color:var(--grey)}
+.linie.v-eliminat-l{background:linear-gradient(90deg,var(--red-bg),#fff 55%)}
+.linie.v-recodificat-l{background:linear-gradient(90deg,var(--orange-bg),#fff 55%)}
+.linie.v-completat-l,.linie.v-atentie-l{background:linear-gradient(90deg,var(--gold-bg),#fff 55%)}
+.corp{grid-column:1 / -1}
+.intrebari{list-style:none;margin:10px 0 4px;padding:0;display:grid;gap:8px}
+.intrebari li{display:grid;grid-template-columns:1fr auto;gap:12px;align-items:center;background:var(--soft);border-radius:8px;padding:8px 10px}
+.intrebari .seg button{padding:5px 14px}
+.intrebari .seg button[data-v=da][aria-pressed=true]{background:var(--green)}
+.intrebari .seg button[data-v=nu][aria-pressed=true]{background:var(--red)}
+.motiv{margin:8px 0 0;color:var(--ink);font-size:14px;max-width:80ch}
+.scriem{margin:6px 0 0;font-size:14px;max-width:80ch;color:var(--navy)}
+.scriem b{font-weight:700}
+
+footer.subsol{max-width:1280px;margin:0 auto;padding:4px 24px 32px;color:var(--slate);font-size:13px}
+footer.subsol p{margin:4px 0;max-width:110ch}
+
+@media print{
+  body{background:#fff}
+  header.top,.caz,.rez-cap .actiuni,.intrebari .seg,footer.subsol .nu-tipari{display:none !important}
+  main.wrap{display:block;padding:0}
+  .rez{border:0}
+  .linie{break-inside:avoid;background:none !important}
+  .stampila{transform:none}
+  .tipar-cap{display:block !important}
+}
+.tipar-cap{display:none;padding:0 22px 10px}
+@media (prefers-reduced-motion:reduce){ *{transition:none !important} }
+</style>
+</head>
+<body>
+<header class="top">
+  <div class="wrap">
+    <div>
+      <h1>Verificarea fișei înainte de statistică</h1>
+      <p>IMSP Spitalul Raional Căușeni „Ana și Alexandru” · diagnostice, proceduri, DRG</p>
+    </div>
+    <div class="privat">
+      <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#5FD0BF" stroke-width="2" aria-hidden="true"><rect x="4" y="11" width="16" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg>
+      <span>Datele introduse rămân în acest calculator și dispar la închiderea paginii. Nu introduceți nume, IDNP sau numărul real al fișei.</span>
+    </div>
+  </div>
+</header>
+
+<main class="wrap">
+  <section class="caz" aria-labelledby="t-caz">
+    <h2 id="t-caz">Cazul</h2>
+    <div class="rand2">
+      <div class="camp"><label for="codIntern">Cod intern</label><input id="codIntern" type="text" placeholder="ex. T-01" autocomplete="off"></div>
+      <div class="camp"><label for="zilePat">Zile-pat</label><input id="zilePat" type="number" min="0" inputmode="numeric"></div>
+    </div>
+    <div class="camp"><label for="sectia">Secția</label>
+      <select id="sectia">
+        <option value="">— alegeți —</option>
+        <option>Terapie</option><option>Cardiologie</option><option>Neurologie</option><option>Pediatrie</option>
+        <option>Chirurgie</option><option>Traumatologie</option><option>Ginecologie</option><option>Boli infecțioase</option>
+        <option>ATI</option><option>Altă secție</option>
+      </select>
+    </div>
+    <div class="camp">
+      <span class="et" id="et-ati">A trecut prin ATI?</span>
+      <div class="seg" role="group" aria-labelledby="et-ati" data-camp="ati">
+        <button type="button" data-v="nu" aria-pressed="true">Nu</button><button type="button" data-v="da" aria-pressed="false">Da</button>
+      </div>
+    </div>
+    <div class="camp">
+      <span class="et" id="et-vent">Ventilație mecanică în fișa ATI</span>
+      <div class="seg" role="group" aria-labelledby="et-vent" data-camp="ventilat">
+        <button type="button" data-v="necunoscut" aria-pressed="true">Nu știu</button><button type="button" data-v="nu" aria-pressed="false">Nu</button><button type="button" data-v="da" aria-pressed="false">Da</button>
+      </div>
+      <div class="vent" id="ventBloc" hidden>
+        <div class="camp"><label for="ventStart">Început (intubare / conectare)</label><input id="ventStart" type="datetime-local"></div>
+        <div class="camp"><label for="ventStop">Sfârșit (extubare / deconectare)</label><input id="ventStop" type="datetime-local"></div>
+        <div class="camp" style="margin-bottom:0"><label for="oreVentilatie">sau total ore, dacă orele lipsesc</label><input id="oreVentilatie" type="number" min="0" step="0.5"></div>
+      </div>
+    </div>
+    <div class="camp"><label for="dp">Diagnostic principal</label><input id="dp" type="text" placeholder="ex. J18.0" autocomplete="off" spellcheck="false"></div>
+    <div class="camp"><label for="ds">Diagnostice secundare</label><textarea id="ds" rows="7" placeholder="un cod pe rând&#10;I10&#10;J96.0" spellcheck="false"></textarea><small>Pot fi scrise cu sau fără punct; textul de după cod este ignorat.</small></div>
+    <div class="camp"><label for="proc">Intervenții și proceduri (ACHI)</label><textarea id="proc" rows="4" placeholder="un cod pe rând&#10;92044-00" spellcheck="false"></textarea></div>
+    <div class="actiuni">
+      <button type="button" class="btn" id="btnExemplu">Încarcă un exemplu</button>
+      <button type="button" class="btn" id="btnNou">Caz nou</button>
+    </div>
+  </section>
+
+  <section class="rez" aria-labelledby="t-rez" aria-live="polite">
+    <div class="rez-cap">
+      <h2 id="t-rez">Verdict pe fiecare cod</h2>
+      <div class="actiuni">
+        <button type="button" class="btn prim" id="btnCopiaza">Copiază raportul</button>
+        <button type="button" class="btn" id="btnTipar">Tipărește</button>
+      </div>
+    </div>
+    <div class="tipar-cap" id="tiparCap"></div>
+    <div class="sumar" id="sumar" hidden></div>
+    <p class="risc" id="risc" hidden>Eliminările sau recodificările de mai jos pot schimba grupa sau nivelul DRG al cazului.</p>
+    <div class="gol" id="gol">
+      <p><strong>Introduceți codurile cazului în stânga.</strong> Pentru fiecare cod apar întrebările pe care le-ar pune auditorul. Răspundeți cu ce <em>scrie</em> în fișă, nu cu ce s-a făcut: ce nu e scris nu există pentru audit.</p>
+      <p>Pentru o primă încercare, apăsați „Încarcă un exemplu”.</p>
+    </div>
+    <ol class="lista" id="lista"></ol>
+  </section>
+</main>
+
+<footer class="subsol">
+  <p id="versiune"></p>
+  <p>Instrument intern de autocontrol. Verdictul este o predicție a auditului pe baza regulilor din acest fișier, nu o decizie: decizia finală aparține medicului curant și codificatorului. Codurile exacte ICD-10-AM și ACHI se verifică în clasificarea în vigoare.</p>
+  <p class="nu-tipari">Pagina nu trimite date în rețea și nu salvează nimic. Regulile sunt în <code>reguli.js</code>.</p>
+</footer>
+
+<script src="reguli.js"></script>
+<script src="motor.js"></script>
+<script src="app.js"></script>
+</body>
+</html>

@@ -1,0 +1,128 @@
+[
+  {
+    "nume": "Pneumonie cu set de diagnostice copiat",
+    "caz": { "dp": "J18.0", "ds": "I10\nJ96.0\nG93.4\nK75.2\nE87.4", "proc": "58500-00\n11700-00\n92044-00", "ati": "nu", "ventilat": "nu" },
+    "raspunsuri": {
+      "DP:J180:motiv": "da",
+      "DS:I10:trat": "nu", "DS:I10:eval": "nu", "DS:I10:mon": "nu",
+      "DS:J960:spo2": "da", "DS:J960:fr": "da", "DS:J960:o2": "da", "DS:J960:gaze": "nu", "DS:J960:dg": "da",
+      "DS:G934:clin": "nu",
+      "DS:K752:interp": "da", "DS:K752:act": "nu",
+      "DS:E874:interp": "da", "DS:E874:act": "da"
+    },
+    "asteptat": { "J18.0": "ok", "I10": "eliminat", "J96.0": "ok", "G93.4": "eliminat", "K75.2": "eliminat", "E87.4": "ok", "58500-00": "eliminat", "11700-00": "eliminat", "92044-00": "ok" }
+  },
+  {
+    "nume": "J96.0 fără nicio dovadă de hipoxemie",
+    "caz": { "dp": "J21.9", "ds": "J96.0", "proc": "", "ati": "nu", "ventilat": "nu" },
+    "raspunsuri": { "DP:J219:motiv": "da", "DS:J960:spo2": "nu", "DS:J960:gaze": "nu" },
+    "asteptat": { "J96.0": "eliminat" }
+  },
+  {
+    "nume": "J96.0 cu SpO₂, dar fără diagnostic în jurnal",
+    "caz": { "dp": "J21.9", "ds": "J96.0", "proc": "", "ati": "nu", "ventilat": "nu" },
+    "raspunsuri": { "DP:J219:motiv": "da", "DS:J960:spo2": "da", "DS:J960:fr": "da", "DS:J960:o2": "da", "DS:J960:gaze": "nu", "DS:J960:dg": "nu" },
+    "asteptat": { "J96.0": "completat" }
+  },
+  {
+    "nume": "Ventilație codificată ca oxigenoterapie (98 de ore)",
+    "caz": { "dp": "J18.0", "ds": "A41.9\nJ96.0", "proc": "92044-00\n92052-00", "ati": "da", "ventilat": "da", "ventStart": "2026-03-01T10:00", "ventStop": "2026-03-05T12:00" },
+    "raspunsuri": { "DP:J180:motiv": "da" },
+    "asteptat": { "92044-00": "recodificat", "92052-00": "atentie", "13882-0x": "recodificat" },
+    "contine": { "13882-0x": "13882-02" }
+  },
+  {
+    "nume": "Pacient ATI cu ventilația necunoscută",
+    "caz": { "dp": "J18.0", "ds": "", "proc": "22007-01", "ati": "da", "ventilat": "necunoscut" },
+    "raspunsuri": { "DP:J180:motiv": "da" },
+    "asteptat": { "22007-01": "atentie", "ATI": "atentie" }
+  },
+  {
+    "nume": "Categorie de durată greșită a ventilației",
+    "caz": { "dp": "J18.0", "ds": "", "proc": "13882-00", "ati": "da", "ventilat": "da", "oreVentilatie": 50 },
+    "raspunsuri": { "DP:J180:motiv": "da" },
+    "asteptat": { "13882-00": "recodificat" },
+    "contine": { "13882-00": "13882-01" }
+  },
+  {
+    "nume": "Ventilație codificată fără ore",
+    "caz": { "dp": "J18.0", "ds": "", "proc": "13882-02", "ati": "da", "ventilat": "da" },
+    "raspunsuri": { "DP:J180:motiv": "da" },
+    "asteptat": { "13882-02": "completat" }
+  },
+  {
+    "nume": "Insuficiență cardiacă principală + HTA, fără etiologie scrisă",
+    "caz": { "dp": "I50.0", "ds": "I10", "proc": "", "ati": "nu", "ventilat": "nu" },
+    "raspunsuri": { "DP:I500:motiv": "da", "DS:I10:trat": "da", "COMB:I11:etio": "nu" },
+    "asteptat": { "I50.0": "ok", "I10": "ok", "HTA + IC": "recodificat" },
+    "contine": { "HTA + IC": "Diagnosticul principal se schimbă" }
+  },
+  {
+    "nume": "HTA + IC cu etiologie ischemică documentată",
+    "caz": { "dp": "I50.0", "ds": "I10\nI25.1", "proc": "", "ati": "nu", "ventilat": "nu" },
+    "raspunsuri": { "DP:I500:motiv": "da", "DS:I10:trat": "da", "DS:I251:trat": "da", "COMB:I11:etio": "da" },
+    "asteptat": { "HTA + IC": "ok", "I25.1": "ok" }
+  },
+  {
+    "nume": "Debridare excizională descrisă incomplet",
+    "caz": { "dp": "L02.8", "ds": "", "proc": "30023-00", "ati": "nu", "ventilat": "nu" },
+    "raspunsuri": { "DP:L028:motiv": "da", "PR:3002300:tesut": "da", "PR:3002300:limita": "nu" },
+    "asteptat": { "30023-00": "recodificat" }
+  },
+  {
+    "nume": "Traumatism fără cauză externă",
+    "caz": { "dp": "S12.1", "ds": "S14.0", "proc": "", "ati": "nu", "ventilat": "nu" },
+    "raspunsuri": { "DP:S121:motiv": "da", "DS:S140:eval": "da" },
+    "asteptat": { "S12.1": "ok", "S14.0": "ok", "V01–Y98": "completat" }
+  },
+  {
+    "nume": "Traumatism cu cauză externă",
+    "caz": { "dp": "S12.1", "ds": "W01.0", "proc": "", "ati": "nu", "ventilat": "nu" },
+    "raspunsuri": { "DP:S121:motiv": "da" },
+    "asteptat": { "S12.1": "ok", "W01.0": "ok" },
+    "lipseste": ["V01–Y98"]
+  },
+  {
+    "nume": "Edem pulmonar principal cu cauza stabilită",
+    "caz": { "dp": "J81", "ds": "", "proc": "", "ati": "nu", "ventilat": "nu" },
+    "raspunsuri": { "DP:J81:cauza": "da" },
+    "asteptat": { "J81": "recodificat" }
+  },
+  {
+    "nume": "Edem pulmonar principal, cauză nestabilită",
+    "caz": { "dp": "J81", "ds": "", "proc": "", "ati": "nu", "ventilat": "nu" },
+    "raspunsuri": { "DP:J81:cauza": "nu", "DP:J81:motiv": "da" },
+    "asteptat": { "J81": "ok" }
+  },
+  {
+    "nume": "Apendicită cu peritonită nedescrisă în protocol",
+    "caz": { "dp": "K35.0", "ds": "", "proc": "", "ati": "nu", "ventilat": "nu" },
+    "raspunsuri": { "DP:K350:perit": "nu" },
+    "asteptat": { "K35.0": "recodificat" }
+  },
+  {
+    "nume": "RCP + masaj cardiac, fără ventilație",
+    "caz": { "dp": "I21.9", "ds": "", "proc": "92052-00\n92053-00", "ati": "da", "ventilat": "nu" },
+    "raspunsuri": { "DP:I219:motiv": "da" },
+    "asteptat": { "92052-00": "ok", "92053-00": "eliminat" }
+  },
+  {
+    "nume": "Duplicat și format greșit",
+    "caz": { "dp": "J18.0", "ds": "J18.0\nI10\nI10\n123", "proc": "5850000\n58500-00", "ati": "nu", "ventilat": "nu" },
+    "raspunsuri": { "DP:J180:motiv": "da" },
+    "asteptat": { "123": "atentie" },
+    "numar": { "eliminat": 4 }
+  },
+  {
+    "nume": "Diagnostic secundar fără regulă specifică, cu tratament",
+    "caz": { "dp": "J18.0", "ds": "N39.0", "proc": "", "ati": "nu", "ventilat": "nu" },
+    "raspunsuri": { "DP:J180:motiv": "da", "DS:N390:trat": "da" },
+    "asteptat": { "N39.0": "ok" }
+  },
+  {
+    "nume": "Întrebări fără răspuns",
+    "caz": { "dp": "J18.0", "ds": "I10", "proc": "", "ati": "nu", "ventilat": "nu" },
+    "raspunsuri": {},
+    "asteptat": { "J18.0": "nedecis", "I10": "nedecis" }
+  }
+]
